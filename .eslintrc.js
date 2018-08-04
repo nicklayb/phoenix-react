@@ -15,6 +15,7 @@ module.exports = {
         'import/prefer-default-export': 0,
         'react/sort-comp': 0,
         'class-methods-use-this': 0,
-        'no-underscore-dangle': 0
+        'no-underscore-dangle': 0,
+        'react/no-array-index-key': 0
     }
 };

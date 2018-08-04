@@ -15,7 +15,7 @@ export const { Provider, Consumer } = React.createContext(context)
 
 const DEFAULT_TIMEOUT = 5000
 
-class ChannelServiceProvider extends React.Component {
+class ChannelsProvider extends React.Component {
   state = this.props.state
 
   socketInstance = null
@@ -30,9 +30,9 @@ class ChannelServiceProvider extends React.Component {
   }
 
   _bootChannels() {
-    return this.props.channels.reduce((acc, { topic, channel }) => ({
+    return this.props.channels.reduce((acc, { topic, creator }) => ({
       ...acc,
-      [topic]: channel(this.socket.channel(topic), this.providerValue),
+      [topic]: creator(this.socket.channel(topic), this.providerValue),
     }), {})
   }
 
@@ -40,7 +40,7 @@ class ChannelServiceProvider extends React.Component {
     const socket = new Phoenix.Socket(this.props.url, this.socketParams)
     socket.connect()
     socket.onError(this._onSocketError)
-    socket.onClose(this.onSocketClose)
+    socket.onClose(this._onSocketClose)
     return socket
   }
 
@@ -49,12 +49,12 @@ class ChannelServiceProvider extends React.Component {
     this._terminate()
   }
 
-  _onSocketError = () => {
+  _onSocketClose = () => {
     this.callbacks.onSocketClose(this.providerValue)
   }
 
   _bindGetters() {
-    return Object.keys(this.props.getters).reduce((acc, getter) => ({
+    return Object.keys(this.getters).reduce((acc, getter) => ({
       ...acc,
       [getter]: params => this.props.getters[getter](this.state, params),
     }), {})
@@ -90,12 +90,16 @@ class ChannelServiceProvider extends React.Component {
     return this.props.timeout || DEFAULT_TIMEOUT
   }
 
+  get getters() {
+    return this.props.getters || ({})
+  }
+
   get callbacks() {
     return {
       onSocketClose: provider =>
-        this.props.callbacks.onSocketClose(provider) || (() => {}),
+        (this.props.callbacks && this.props.callbacks.onSocketClose(provider)) || (() => {}),
       onSocketError: (err, provider) =>
-        this.props.callbacks.onSocketError(err, provider) || (() => {}),
+        (this.props.callbacks && this.props.callbacks.onSocketError(err, provider)) || (() => {}),
     }
   }
 
@@ -121,7 +125,7 @@ class ChannelServiceProvider extends React.Component {
   }
 }
 
-ChannelServiceProvider.propTypes = {
+ChannelsProvider.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
@@ -134,10 +138,13 @@ ChannelServiceProvider.propTypes = {
   }),
   url: PropTypes.string,
   params: PropTypes.shape(),
-  channels: PropTypes.objectOf(PropTypes.func),
+  channels: PropTypes.arrayOf(PropTypes.shape({
+    topic: PropTypes.string,
+    creator: PropTypes.func,
+  })),
   timeout: PropTypes.number,
 }
 
-ChannelServiceProvider.Consumer = Consumer
+ChannelsProvider.Consumer = Consumer
 
-export default ChannelServiceProvider
+export default ChannelsProvider

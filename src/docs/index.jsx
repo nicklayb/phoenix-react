@@ -1,14 +1,57 @@
 import React from 'react'
 import { render } from 'react-dom'
-import MyComponent from '../lib'
+import ChannelsProvider, { withChannels } from '../../lib'
+import channels from './channels'
 
-function Demo() {
-  return (
-    <div>
-      <h1>Demo with examples of the component</h1>
-      <MyComponent color='brown'>Wow what a button</MyComponent>
-    </div>
-  )
+const MessageList = withChannels(({ state }) => (
+  <ul>
+    {state.messages.map((message, index) => (
+      <li key={index}>{message}</li>
+    ))}
+  </ul>
+))
+
+class Input extends React.Component {
+  state = {
+    input: '',
+  }
+
+  submit = (e) => {
+    e.preventDefault()
+    this.props.fire('room:lobby', 'new_msg', {
+      message: this.state.input,
+    })
+    this.setState({ input: '' })
+  }
+
+  handleChange = ({ target }) => {
+    this.setState({
+      input: target.value,
+    })
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.submit}>
+        <input onChange={this.handleChange} value={this.state.input} />
+        <button>Send</button>
+      </form>
+    )
+  }
 }
 
-render(<Demo />, document.getElementById('app'))
+const ChannelInput = withChannels(Input)
+
+const App = () => (
+  <ChannelsProvider
+    url="ws://localhost:4000/socket"
+    state={{ messages: [] }}
+    channels={channels}
+    onSocketError={e => console.error('ERROR', e)}
+  >
+    <MessageList />
+    <ChannelInput />
+  </ChannelsProvider>
+)
+
+render(<App />, document.getElementById('app'))

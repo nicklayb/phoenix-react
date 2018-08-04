@@ -7,6 +7,28 @@ It provides :
 - Simple channel and events registration
 - HOC for easy coupling with the Provider
 
+## Running the example
+
+- Clone the repository
+
+```
+git clone https://github.com/nicklayb/phoenix-react
+```
+
+- Install npm packages
+
+```
+npm install
+//  or
+yarn install
+```
+
+- Run development environment
+
+```
+npm run dev
+```
+
 ## Getting started
 
 ### Install the dependency
@@ -165,7 +187,7 @@ export default () => (
 
 ### `ChannelsProvider`
 
-#### `state`:
+#### `state`
 
 `object` that contains the initial state of the context
 
@@ -175,7 +197,7 @@ export default () => (
 }
 ```
 
-#### `getters`:
+#### `getters`
 
 `object` that contains fucntion that receives params and state
 
@@ -212,7 +234,7 @@ export default () => (
 }
 ```
 
-#### `channels``
+#### `channels`
 
 `array` of channel created within the `createChannel` helper.
 
@@ -227,7 +249,7 @@ export default () => (
 ]
 ```
 
-#### `timeout``
+#### `timeout`
 
 `number` that represents the timeout duration in milliseconds like `5000`
 
