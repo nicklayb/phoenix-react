@@ -56,7 +56,7 @@ class ChannelServiceProvider extends React.Component {
   _bindGetters() {
     return Object.keys(this.props.getters).reduce((acc, getter) => ({
       ...acc,
-      [getter]: params => this.props.getters[getter](params, this.state),
+      [getter]: params => this.props.getters[getter](this.state, params),
     }), {})
   }
 
@@ -92,8 +92,10 @@ class ChannelServiceProvider extends React.Component {
 
   get callbacks() {
     return {
-      onSocketClose: () => this.props.callbacks.onSocketClose() || (() => {}),
-      onSocketError: err => this.props.callbacks.onSocketError(err) || (() => {}),
+      onSocketClose: provider =>
+        this.props.callbacks.onSocketClose(provider) || (() => {}),
+      onSocketError: (err, provider) =>
+        this.props.callbacks.onSocketError(err, provider) || (() => {}),
     }
   }
 

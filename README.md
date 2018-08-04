@@ -23,7 +23,7 @@ yarn add phoenix-react
 
 ### Setting up the context Provider
 
-```js
+```jsx
 import React from 'react'
 import ChannelProvider from 'phoenix-react'
 import channels from './channels'
@@ -106,14 +106,14 @@ To bind state mutations to components, there is two way. Wither use the Consumer
 - `fire(channel, event, body)`: function that fires an event to the server on the desired channel.
 - `state`: The current state of your provider which **should not** be mutated. Use the mutate function instead.
 - `getters`: The getter object you passed to the provider. These are "quick access functions" to your state.
-- `mutate`: function that directly mutates the state.
-- `leave`: function that leaves the given channel.
+- `mutate(state => state)`: function that directly mutates the state.
+- `leave(topice)`: function that leaves the given channel.
 
 #### Using the Consumer
 
 Simply wrap the location where you want to use the provider state by the consumer.
 
-```js
+```jsx
 import React from 'react'
 import ChannelsProvider from 'phoenix-react'
 
@@ -136,7 +136,7 @@ export default () => (
 
 Just wrap the Component while edefault exporting it. The advantage of the HOC is that you can pass a `mapState` function as second parameter to map the only thing want from the payload.
 
-```js
+```jsx
 import React from 'react'
 import { withChannels } from 'phoenix-react'
 
@@ -165,5 +165,115 @@ export default () => (
 
 ### `ChannelsProvider`
 
+#### `state`:
+
+`object` that contains the initial state of the context
+
+```js
+{
+  messages: [],
+}
+```
+
+#### `getters`:
+
+`object` that contains fucntion that receives params and state
+
+```js
+{
+  unread: (_, state) => state.messages.filter(message => !message.read),
+}
+```
+
+#### `callbacks`
+
+`object` that has `onSocketError` and `onSocketClose` keys for callbacks on socket events. These events will receive the provider value.
+
+```js
+{
+  onSocketError: (error, provider) => { /* */ }
+  onSocketClose: (provider) => { /* */ }
+}
+```
+
+#### `url`
+
+`string` that represents the websocket/longpolling host like `ws://localohst:4000/socket`
+
+#### `params`
+
+`object` that is passed to the socket constructor. There is a nested `params` key that represents the params sent to the websocket server. Refer to the Phoenix js documentation.
+
+```js
+{
+  params: {
+    token: 'Bearer ...',
+  },
+}
+```
+
+#### `channels``
+
+`array` of channel created within the `createChannel` helper.
+
+```js
+[
+  createChannel('room:lobby', (channel, { mutate }) => {
+    /* setup channel */
+  }),
+  createChannel('room:1', (channel, { mutate }) => {
+    /* setup channel */
+  }),
+]
+```
+
+#### `timeout``
+
+`number` that represents the timeout duration in milliseconds like `5000`
+
+
+### `withChannels`
+
+#### `Component`
+
+React component that you want to map the provider value.
+
+```js
+export default withChannels(Component)
+```
+
+The component now receives `state`, `fire`, `getters`, `mutate` and `leave`.
+
+#### `mapState`
+
+`function` that receive the provider value and return only what you want to attach to your component
+
+```js
+export default withChannels(Component, ({ state, fire }) => ({
+  messages: state.messages,
+  fire,
+}))
+```
+The component now receives on `messages` and `fire`.
+
+### `createChannel(topic, callback: (channel, providerValue))`
+
+`function` that receives a `topic` string and a `callback`. That callback receives `channel` which is the `socket.channel` instance and the provider value. The callback **must** return the channel and make sure to call `join` before returning.
+
+```js
+const channel = createChannel('room:lobby', (channel, { mutate }) => {
+  channel.on('new_msg', ({ message }) = {
+    mutate(state => {
+      ...state,
+      messages: [
+        ...state,
+        message
+      ],
+    })
+  })
+  channel.join()
+  return channel
+})
+```
 
 
