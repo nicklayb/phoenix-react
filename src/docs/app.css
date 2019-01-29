@@ -1,0 +1,81 @@
+body, #app {
+  font-family: 'Helvetica neue', sans-serif;
+  font-weight: 200;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex: 1;
+}
+
+.flex {
+  display: flex;
+  flex: 1;
+}
+
+.wrapper {
+  flex-flow: column;
+  flex: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.title {
+  flex: 0 0 auto;
+  justify-content: space-between;
+}
+.title > h1, title > h3 {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.body {
+  flex-flow: row;
+  flex: 1;
+}
+
+.members {
+  flex: 0 0 30%;
+  border-right: 0px;
+  padding: 5px;
+}
+
+.list {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  overflow-y: auto;
+}
+
+.chat {
+  flex: 1;
+  padding: 5px;
+}
+
+.center {
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  border-radius: 5px;
+}
+button {
+  padding: 10px;
+  border: 1px solid #c0c0c0;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+}
+button:hover {
+  background-color: #d7d7d7;
+}
+button:active {
+  background-color: #d0d0d0;
+}
+
+input:focus {
+  border: 1px solid #a0a0a0;
+}

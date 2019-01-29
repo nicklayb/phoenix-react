@@ -1,57 +1,33 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { render } from 'react-dom'
-import ChannelsProvider, { withChannels } from '../../lib'
-import channels from './channels'
+import ChannelsProvider from '../../lib'
+import Chat from './Chat'
+import './app.css'
+import NameInput from './NameInput'
 
-const MessageList = withChannels(({ state }) => (
-  <ul>
-    {state.messages.map((message, index) => (
-      <li key={index}>{message}</li>
-    ))}
-  </ul>
-))
+const SOCKET_HOST = 'ws://localhost:4000/socket'
 
-class Input extends React.Component {
+class App extends React.Component {
   state = {
-    input: '',
+    name: null,
   }
 
-  submit = (e) => {
-    e.preventDefault()
-    this.props.fire('room:lobby', 'new_msg', {
-      message: this.state.input,
-    })
-    this.setState({ input: '' })
-  }
-
-  handleChange = ({ target }) => {
-    this.setState({
-      input: target.value,
-    })
-  }
+  handleSubmit = name => this.setState({
+    name,
+  })
 
   render() {
+    if (this.state.name) {
+      return (
+        <ChannelsProvider url={SOCKET_HOST} params={{ name: this.state.name }}>
+          <Chat name={this.state.name} />
+        </ChannelsProvider>
+      )
+    }
     return (
-      <form onSubmit={this.submit}>
-        <input onChange={this.handleChange} value={this.state.input} />
-        <button>Send</button>
-      </form>
+      <NameInput onSubmit={this.handleSubmit} />
     )
   }
 }
-
-const ChannelInput = withChannels(Input)
-
-const App = () => (
-  <ChannelsProvider
-    url="ws://localhost:4000/socket"
-    state={{ messages: [] }}
-    channels={channels}
-    onSocketError={e => console.error('ERROR', e)}
-  >
-    <MessageList />
-    <ChannelInput />
-  </ChannelsProvider>
-)
 
 render(<App />, document.getElementById('app'))
