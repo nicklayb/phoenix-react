@@ -41,8 +41,13 @@ class Topic extends React.Component {
     this.state.channel.on(event, handler)
   }
 
+  childProps = () => ({
+    channel: this.state.channel,
+    push: this.state.channel.push,
+  })
+
   render() {
-    return this.props.children
+    return this.props.children(this.childProps)
   }
 }
 
@@ -55,10 +60,7 @@ Topic.propTypes = {
   presence: PropTypes.bool,
   events: PropTypes.shape({}),
   onSync: PropTypes.func,
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node,
-  ]),
+  children: PropTypes.func,
 }
 
 export default withSocket(Topic)

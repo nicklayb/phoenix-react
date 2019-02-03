@@ -3,8 +3,8 @@ import { ChannelConsumer } from './Provider'
 
 export const withSocket = Component => props => (
   <ChannelConsumer>
-    {({ socket }) => (
-      <Component {...props} socket={socket} />
+    {(d) => console.log(d) || (
+      <Component {...props} socket={d.socket} />
     )}
   </ChannelConsumer>
 )

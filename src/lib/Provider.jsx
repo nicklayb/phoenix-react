@@ -3,14 +3,22 @@ import PropTypes from 'prop-types'
 import * as Phoenix from 'phoenix'
 
 const CONTEXT = {
-
+  socket: null,
+  status: null,
+  statusPayload: null,
 }
 
 const { Provider, Consumer } = React.createContext(CONTEXT)
 
+const CLOSED = 'closed'
+const OPENED = 'opened'
+const ERROR = 'error'
+
 class ChannelProvider extends React.Component {
   state = {
     socket: new Phoenix.Socket(this.host, this.params),
+    status: null,
+    statusPayload: {},
   }
 
   componentDidMount() {
@@ -32,12 +40,25 @@ class ChannelProvider extends React.Component {
   }
 
   getProviderState() {
+    console.log(this.state)
     return {
       socket: this.state.socket,
+      status: this.state.status,
+      statusPayload: this.state.statusPayload,
     }
   }
 
+  updateStatus = status => (payload) => {
+    this.setState({
+      status,
+      statusPayload: payload,
+    })
+  }
+
   connectSocket() {
+    this.state.socket.onClose(this.updateStatus(CLOSED))
+    this.state.socket.onError(this.updateStatus(ERROR))
+    this.state.socket.onOpen(this.updateStatus(OPENED))
     this.state.socket.connect()
   }
 
@@ -50,7 +71,7 @@ class ChannelProvider extends React.Component {
   render() {
     return (
       <Provider value={this.getProviderState()}>
-        {this.props.children}
+        {this.props.children(this.getProviderState())}
       </Provider>
     )
   }
@@ -67,6 +88,9 @@ ChannelProvider.propTypes = {
 
 export default ChannelProvider
 
+const statuses = { OPENED, CLOSED, ERROR }
+
 export {
   Consumer as ChannelConsumer,
+  statuses,
 }
